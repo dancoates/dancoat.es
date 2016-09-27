@@ -1,0 +1,30 @@
+{
+  "name": "dancoat.es",
+  "version": "1.0.0",
+  "description": "dancoat.es site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dancoates/dancoat.es.git"
+  },
+  "author": "dancoates",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dancoates/dancoat.es/issues"
+  },
+  "homepage": "https://github.com/dancoates/dancoat.es#readme",
+  "dependencies": {
+    "graphql": "^0.7.0",
+    "hapi": "^15.0.3",
+    "immutable": "^3.8.1",
+    "pg": "^6.1.0",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-redux": "^4.4.5",
+    "react-router": "^2.8.1",
+    "redux": "^3.6.0"
+  }
+}
