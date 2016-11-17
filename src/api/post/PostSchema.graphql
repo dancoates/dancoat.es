@@ -1,0 +1,8 @@
+type Post {
+    id: ID!
+    slug: String!
+    created: String!
+    modified: String!
+    currentVersion: PostVersion!
+    pastVersions: [PostVersion]
+}
