@@ -1,10 +1,13 @@
-// why tree shaking don't work
-// https://github.com/webpack/webpack/issues/2867
-
+import 'whatwg-fetch';
 import Inferno from 'inferno';
-import {thing1} from './test';
-console.log('woot');
-thing1();
+import {Provider} from 'inferno-redux';
+import {Router} from 'inferno-router';
+import {createBrowserHistory} from 'history';
+import store from 'client/store';
+import routes from 'client/routes';
 
+const browserHistory = createBrowserHistory();
 
-Inferno.render(<div>woot</div>, document.getElementById('app'));
+Inferno.render(<Provider store={store}>
+    <Router history={browserHistory} children={routes}/>
+</Provider>, document.getElementById('app'));
