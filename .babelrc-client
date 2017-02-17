@@ -5,10 +5,10 @@
                 "browsers": ["last 2 versions"]
             },
             "modules": false
-        }]
+        }],
+        "react"
     ],
     "plugins" : [
-        "inferno",
         "transform-object-rest-spread"
     ]
 }

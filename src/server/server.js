@@ -3,18 +3,18 @@ require('dotenv').config({silent: true});
 import Hapi from 'hapi';
 import {graphql} from 'graphql';
 import {Resolver, Schema} from 'api';
-
-
-import Inferno from 'inferno';
-import { renderToString } from 'inferno-server'
-import { RouterContext, match } from 'inferno-router';
+import Boom from 'boom';
+import ReactDOMServer from 'react-dom/server'
+import React from 'react';
+import { RouterContext, match } from 'react-router';
+import Index from 'client/index.static';
 import routes from 'client/routes';
 
 const server = new Hapi.Server();
 
 server.connection({
     host: process.env.HOST || '0.0.0.0',
-    port: process.env.PORT || 3000
+    port: process.env.SERVER_PORT || 4444
 });
 
 server.route({
@@ -22,9 +22,20 @@ server.route({
     path: '/{p*}',
     handler: function(request, reply) {
         const path = request.path;
-        const routeInfo = match(routes, path);
-        const content = <RouterContext {...routeInfo}/>;
-        return reply(renderToString(content));
+
+        match({routes, location: path}, (err, redirect, renderProps) => {
+            if(err) {
+                return reply(Boom.wrap(err));
+            } else if(redirect) {
+                return reply.redirect(redirect.pathname + redirect.search);
+            } else if(renderProps) {
+                const content = ReactDOMServer.renderToString(<RouterContext {...renderProps}/>);
+                const wrapper = <Index content={content}/>
+                return reply(ReactDOMServer.renderToString(wrapper));
+            } else {
+                return reply(Boom.notFound('Requested thingo not found', {path}));
+            }
+        });        
     }
 })
 

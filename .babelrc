@@ -4,10 +4,10 @@
             "targets": {
                 "node": "current"
             }
-        }]
+        }],
+        "react"
     ],
     "plugins" : [
-        "inferno",
         "transform-object-rest-spread"
     ]
 }

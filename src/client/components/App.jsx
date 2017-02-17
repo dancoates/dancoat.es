@@ -1,7 +1,6 @@
-import Inferno from 'inferno';
-import Component from 'inferno-component';
+import React from 'react';
 
-export default class App extends Component {
+export default class App extends React.Component {
     render() {
         return <div>
             {this.props.children}

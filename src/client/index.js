@@ -1,13 +1,11 @@
 import 'whatwg-fetch';
-import Inferno from 'inferno';
-import {Provider} from 'inferno-redux';
-import {Router} from 'inferno-router';
-import {createBrowserHistory} from 'history';
+import React from 'react';
+import ReactDom from 'react-dom';
+import {Provider} from 'react-redux';
+import {Router, browserHistory} from 'react-router';
 import store from 'client/store';
 import routes from 'client/routes';
 
-const browserHistory = createBrowserHistory();
-
-Inferno.render(<Provider store={store}>
-    <Router history={browserHistory} children={routes}/>
+ReactDom.render(<Provider store={store}>
+    <Router history={browserHistory} routes={routes}/>
 </Provider>, document.getElementById('app'));

@@ -1,0 +1,6 @@
+{
+    "execMap": {
+        "jsx": "node"
+    },
+    "ext": "js jsx"
+}

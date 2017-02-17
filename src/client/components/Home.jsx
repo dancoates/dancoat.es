@@ -1,10 +1,9 @@
-import Inferno from 'inferno';
-import Component from 'inferno-component';
+import React from 'react';
 
-export default class Home extends Component {
+export default class Home extends React.Component {
     render() {
         return <div>
-            Home
+            Homing
         </div>;
     }
 }

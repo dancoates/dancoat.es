@@ -30,5 +30,13 @@ module.exports = {
         ],
         extensions: ['.js', '.json', '.jsx']
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    devServer: {
+        contentBase: path.resolve(__dirname, "public"),
+        compress: true,
+        port: process.env.CLIENT_PORT || 5555,
+        proxy: {
+            '/' : 'http://' + (process.env.SERVER_HOST || '0.0.0.0') + ':' + (process.env.SERVER_PORT || '4444')
+        }
+    }
 };
