@@ -10,6 +10,5 @@ export default `
         post: Post,
         postList: [Post],
         account: Account
-        accountList: [Account]
     }
 `;

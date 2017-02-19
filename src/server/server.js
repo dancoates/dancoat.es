@@ -1,10 +1,10 @@
-require('dotenv').config({silent: true});
-
 import Hapi from 'hapi';
 import {graphql} from 'graphql';
 import {Resolver, Schema} from 'api';
 import Boom from 'boom';
 import ReactDOMServer from 'react-dom/server'
+import {Provider} from 'react-redux';
+import store from 'client/store';
 import React from 'react';
 import { RouterContext, match } from 'react-router';
 import Index from 'client/index.static';
@@ -29,7 +29,9 @@ server.route({
             } else if(redirect) {
                 return reply.redirect(redirect.pathname + redirect.search);
             } else if(renderProps) {
-                const content = ReactDOMServer.renderToString(<RouterContext {...renderProps}/>);
+                const content = ReactDOMServer.renderToString(
+                    <Provider store={store}><RouterContext {...renderProps}/></Provider>
+                );
                 const wrapper = <Index content={content}/>
                 return reply(ReactDOMServer.renderToString(wrapper));
             } else {
@@ -42,12 +44,17 @@ server.route({
 server.route({
     method: 'POST',
     path: '/api',
+    config: {
+        cors: true
+    },
     handler: function(request, reply) {
         const query = request.payload.query;
-        const variables = request.payload.variables;
+        const variables = typeof request.payload.variables === 'string'
+            ? JSON.parse(request.payload.variables)
+            : request.payload.variables;
 
         const response = new Promise((resolve, reject) => {
-            graphql(Schema, query, Resolver, variables).then((result) => {
+            graphql(Schema, query, Resolver, null, variables).then((result) => {
                 resolve(result);
             });
         });

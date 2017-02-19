@@ -2,5 +2,5 @@
     "execMap": {
         "jsx": "node"
     },
-    "ext": "js jsx"
+    "ext": "js jsx graphql"
 }
