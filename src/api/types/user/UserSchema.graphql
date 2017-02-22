@@ -1,0 +1,18 @@
+type UserQuery {
+    user: User
+    userList: [User]
+}
+
+type UserMutation {
+    login(email: String!, password: String!): User
+}
+
+type User {
+    id: ID
+    role: String
+    token: String
+    name: String
+    email: String
+    created: String
+    modified: String
+}

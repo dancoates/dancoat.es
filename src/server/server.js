@@ -48,13 +48,16 @@ server.route({
         cors: true
     },
     handler: function(request, reply) {
+        console.log('api request');
         const query = request.payload.query;
         const variables = typeof request.payload.variables === 'string'
             ? JSON.parse(request.payload.variables)
             : request.payload.variables;
 
+        const context = {request};
+
         const response = new Promise((resolve, reject) => {
-            graphql(Schema, query, Resolver, null, variables).then((result) => {
+            graphql(Schema, query, Resolver, context, variables).then((result) => {
                 resolve(result);
             });
         });

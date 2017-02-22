@@ -1,4 +1,4 @@
 // Top level
-export {default as post} from 'api/post/PostResolver';
-export {default as postList} from 'api/post/PostListResolver';
-export {default as account} from 'api/account/AccountResolver';
+export {default as post} from 'api/types/post/PostResolver';
+export {default as postList} from 'api/types/post/PostListResolver';
+export {default as user} from 'api/types/user/UserResolver';

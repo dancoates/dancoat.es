@@ -1,7 +1,7 @@
 // Individual schemas
-export {default as post} from 'api/post/PostSchema.graphql';
-export {default as postVersion} from 'api/post/PostVersionSchema.graphql';
-export {default as account} from 'api/account/AccountSchema.graphql';
+export {default as post} from 'api/types/post/PostSchema.graphql';
+export {default as postVersion} from 'api/types/post/PostVersionSchema.graphql';
+export {default as user} from 'api/types/user/UserSchema.graphql';
 
 
 // Root query schema
@@ -9,6 +9,10 @@ export default `
     type Query {
         post: Post,
         postList: [Post],
-        account: Account
+        user: UserQuery
+    }
+
+    type Mutation {
+        user: UserMutation
     }
 `;

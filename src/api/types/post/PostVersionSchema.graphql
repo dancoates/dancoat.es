@@ -1,6 +1,6 @@
 type PostVersion {
     id: ID!
-    author: Account!
+    author: User!
     body: String!
     created: String!
     modified: String!

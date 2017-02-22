@@ -6,23 +6,16 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
 
-export function login({username, password}) {
-    console.log(username, password);
+export function login({email, password}) {
 
     return function(dispatch) {
         dispatch({
             type: LOGIN_REQUEST,
             payload: {
-                username: username
+                email: email
             }
         });
-        console.log({
-                query: loginQuery,
-                variables: {
-                    username,
-                    password
-                }
-            });
+
         fetch(graphqlApi, {
             method: 'POST',
             headers: {
@@ -33,7 +26,7 @@ export function login({username, password}) {
             body: JSON.stringify({
                 query: loginQuery,
                 variables: {
-                    username,
+                    email,
                     password
                 }
             })
