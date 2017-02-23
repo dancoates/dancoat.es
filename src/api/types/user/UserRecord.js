@@ -1,6 +1,6 @@
-import BaseRecord from 'api/baseRecord';
+import BaseRecord from 'shared/baseRecord';
 
-export default class extends BaseRecord({
+export default class UserRecord extends BaseRecord({
     id: null,
     token: null,
     role: null,

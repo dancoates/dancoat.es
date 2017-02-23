@@ -27,7 +27,6 @@ const checkUserPassword = (user, password) => {
 };
 
 const createNewSession = (user, request) => {
-
     const userAgent = request.headers['user-agent'];
     const host = request.headers['host'];
     const ip = request.info.remoteAddress;

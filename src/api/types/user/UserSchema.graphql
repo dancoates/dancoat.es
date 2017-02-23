@@ -5,6 +5,7 @@ type UserQuery {
 
 type UserMutation {
     login(email: String!, password: String!): User
+    logout: String
 }
 
 type User {

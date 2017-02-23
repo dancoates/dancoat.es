@@ -48,7 +48,6 @@ server.route({
         cors: true
     },
     handler: function(request, reply) {
-        console.log('api request');
         const query = request.payload.query;
         const variables = typeof request.payload.variables === 'string'
             ? JSON.parse(request.payload.variables)

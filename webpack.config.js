@@ -56,7 +56,8 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 include: [
-                    path.resolve(__dirname, 'src/client')
+                    path.resolve(__dirname, 'src/client'),
+                    path.resolve(__dirname, 'src/shared')
                 ],
                 loader: 'babel-loader',
                 options: {

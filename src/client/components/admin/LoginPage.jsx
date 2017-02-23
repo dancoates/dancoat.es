@@ -14,7 +14,14 @@ class LoginForm extends React.Component {
         const password = ee.target[1].value;
         this.props.dispatch(authActions.login({email, password}));
     }
+
+
+
     render() {
+        if(this.props.auth.loggedIn) {
+            this.props.router.replace('/admin/dashboard');
+        }
+
         return <form onSubmit={this.handleSubmit}>
             <div>
                 <label htmlFor='Login_email'>Email</label>

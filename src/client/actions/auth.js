@@ -1,10 +1,15 @@
-import {graphqlApi} from 'client/config/paths';
+import graphql from 'client/util/graphql';
 import loginQuery from 'client/queries/login.graphql';
+import logoutQuery from 'client/queries/logout.graphql';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
+
+export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
+export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
+export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 
 export function login({email, password}) {
 
@@ -16,25 +21,35 @@ export function login({email, password}) {
             }
         });
 
-        fetch(graphqlApi, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            mode: 'cors',
-            body: JSON.stringify({
-                query: loginQuery,
-                variables: {
-                    email,
-                    password
-                }
+        graphql(loginQuery, {email, password})
+            .then((data) => {
+                console.log(data);
+                window.localStorage.setItem('user', JSON.stringify(data.user.login));
+
+                dispatch({
+                    type: LOGIN_SUCCESS,
+                    payload: data.user.login
+                });
             })
-        }).then(result => {
-            console.log(result);
-        }).catch(err => {
-            console.log(err);
-        });
+            .catch((err) => {
+                dispatch({
+                    type: LOGIN_FAILURE,
+                    payload: err
+                });
+            });
 
     }
 };
+
+
+export function logout() {  
+    return function(dispatch) {
+        dispatch({type: LOGOUT_REQUEST});
+        graphql(logoutQuery)
+            .then((data) => {
+                window.localStorage.removeItem('user');
+                dispatch({type: LOGOUT_SUCCESS});
+            })
+            .catch((err) => dispatch({type: LOGOUT_FAILURE, payload: err}));
+    };
+}
