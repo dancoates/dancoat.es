@@ -7,16 +7,24 @@ class LogoutPage extends React.Component {
         super(props);
     }
     componentDidMount() {
-        this.props.dispatch(authActions.logout());
+        if(!this.props.auth.loggedOut) {
+            this.props.dispatch(authActions.logout());
+        }
     }
     render() {
-        if(!this.props.auth.loggedIn) {
-            this.props.router.replace('/admin/login');
-            return null;
-        }
+        const {logoutRequest, logoutError, loggedOut} = this.props.auth;
+        console.log(logoutRequest, logoutError, loggedOut);
 
         return <div>
-            Logging out...
+            {
+                logoutRequest
+                    ? 'Logging out...'
+                    : logoutError
+                        ? 'There was an error logging out: ' + logoutError.message
+                        : loggedOut
+                            ? 'Logged Out'
+                            : 'No Logout info'
+            }
         </div>;
     }
 }

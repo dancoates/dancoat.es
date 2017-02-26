@@ -23,15 +23,21 @@ server.route({
     handler: function(request, reply) {
         const path = request.path;
 
+        // Don't server side render admin paths
+        const isAdminPath = path.match(/^\/login\/?$/) ||
+                            path.match(/^\/logout\/?$/) ||
+                            path.match(/^\/admin(\/|$)/);
+
         match({routes, location: path}, (err, redirect, renderProps) => {
             if(err) {
                 return reply(Boom.wrap(err));
             } else if(redirect) {
                 return reply.redirect(redirect.pathname + redirect.search);
             } else if(renderProps) {
-                const content = ReactDOMServer.renderToString(
+                const content = !isAdminPath ? ReactDOMServer.renderToString(
                     <Provider store={store}><RouterContext {...renderProps}/></Provider>
-                );
+                ) : '';
+
                 const wrapper = <Index content={content}/>
                 return reply(ReactDOMServer.renderToString(wrapper));
             } else {

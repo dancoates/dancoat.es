@@ -1,11 +1,11 @@
 import graphql from 'client/util/graphql';
 import loginQuery from 'client/queries/login.graphql';
 import logoutQuery from 'client/queries/logout.graphql';
+import {saveUser, removeSavedUser} from 'client/util/auth';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
-
 
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
@@ -23,9 +23,7 @@ export function login({email, password}) {
 
         graphql(loginQuery, {email, password})
             .then((data) => {
-                console.log(data);
-                window.localStorage.setItem('user', JSON.stringify(data.user.login));
-
+                saveUser(data.user.login);
                 dispatch({
                     type: LOGIN_SUCCESS,
                     payload: data.user.login
@@ -47,7 +45,7 @@ export function logout() {
         dispatch({type: LOGOUT_REQUEST});
         graphql(logoutQuery)
             .then((data) => {
-                window.localStorage.removeItem('user');
+                removeSavedUser();
                 dispatch({type: LOGOUT_SUCCESS});
             })
             .catch((err) => dispatch({type: LOGOUT_FAILURE, payload: err}));
