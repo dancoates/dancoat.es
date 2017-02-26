@@ -22,6 +22,7 @@
   "homepage": "https://github.com/dancoates/dancoat.es#readme",
   "dependencies": {
     "app-module-path": "^2.1.0",
+    "aws-sdk": "^2.20.0",
     "babel-core": "^6.22.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.1.8",
@@ -44,6 +45,7 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0",
     "sql-template-strings": "^2.2.2",
+    "uuid": "^3.0.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0",
     "whatwg-fetch": "^2.0.2"

@@ -9,6 +9,7 @@ import React from 'react';
 import { RouterContext, match } from 'react-router';
 import Index from 'client/index.static';
 import routes from 'client/routes';
+import upload from 'server/upload';
 
 const server = new Hapi.Server();
 
@@ -69,6 +70,19 @@ server.route({
 
         return reply(response);
     }
+});
+
+server.route({
+    method: 'POST',
+    path: '/upload',
+    config: {
+        payload: {
+            output: 'stream',
+            parse: true,
+            maxBytes: 1048576000
+        }
+    },
+    handler: upload
 });
 
 // Start the server
