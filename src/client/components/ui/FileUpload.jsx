@@ -1,6 +1,8 @@
 import React from 'react';
+import {connect} from 'react-redux';
+import * as uploadActions from 'client/actions/upload';
 
-export default class Dashboard extends React.Component {
+class FileUpload extends React.Component {
     constructor(props) {
         super(props);
         this.handleFileSelect = this.handleFileSelect.bind(this);
@@ -10,32 +12,20 @@ export default class Dashboard extends React.Component {
         const files = ee.target.files;
 
         Array.prototype.forEach.call(files, (file) => {
-            const data = new FormData();
-            data.append('file', file);
-            data.append('filename', file.name);
-            data.append('filetype', file.type);
-            data.append('filesize', file.size);
-
-            const xhr = new XMLHttpRequest();
-
-            xhr.open('post', '/upload', true);
-
-            xhr.onprogress = function(ee) {
-                var percentComplete = (ee.loaded / ee.total)*100;
-                console.log(percentComplete);
-            };
-
-            xhr.send(data);
-
-            
+            this.props.dispatch(uploadActions.uploadFile(file));
         });
-
-
     }
 
     render() {
+        console.log(this.props.uploads);
         return <div>
             <input type="file" multiple={true} onChange={this.handleFileSelect}/>
         </div>;
     }
 }
+
+export default connect((state) => {
+    return {
+        uploads: state.upload.files
+    };
+})(FileUpload);

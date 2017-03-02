@@ -48,7 +48,10 @@ module.exports = {
             NODE_ENV: 'development',
             SERVER_PROTOCOL: '',
             SERVER_HOST: '',
-            SERVER_PORT: ''
+            SERVER_PORT: '',
+            WS_PROTOCOL: '',
+            WS_HOST: '',
+            WS_PORT: ''
         })
     ],
     module: {
@@ -56,8 +59,7 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 include: [
-                    path.resolve(__dirname, 'src/client'),
-                    path.resolve(__dirname, 'src/shared')
+                    path.resolve(__dirname, 'src')
                 ],
                 loader: 'babel-loader',
                 options: {

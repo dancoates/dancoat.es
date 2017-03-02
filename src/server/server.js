@@ -1,6 +1,7 @@
 import Hapi from 'hapi';
 import {graphql} from 'graphql';
 import {Resolver, Schema} from 'api';
+import verify from 'api/auth/verify';
 import Boom from 'boom';
 import ReactDOMServer from 'react-dom/server'
 import {Provider} from 'react-redux';
@@ -10,6 +11,12 @@ import { RouterContext, match } from 'react-router';
 import Index from 'client/index.static';
 import routes from 'client/routes';
 import upload from 'server/upload';
+import WebSocket from 'ws';
+import url from 'url';
+
+///
+//  HTTP Server
+///
 
 const server = new Hapi.Server();
 
@@ -78,7 +85,6 @@ server.route({
     config: {
         payload: {
             output: 'stream',
-            parse: true,
             maxBytes: 1048576000
         }
     },
@@ -89,4 +95,33 @@ server.route({
 server.start((err) => {
     if (err) throw err;
     console.log('Server running at:', server.info.uri);
+});
+
+
+///
+//  Websocket Server
+///
+
+const wss = new WebSocket.Server({
+    host: process.env.WS_HOST || 'localhost',
+    port: process.env.WS_PORT || 7777,
+    verifyClient: ({req, secure}, callback) => {
+        const reqUrl = url.parse(req.url, true);
+        const token = reqUrl.query.token;
+
+        verify(token)
+            .then(() => callback(true))
+            .catch(() => callback(false));
+
+    }
+});
+
+
+wss.on('connection', function connection(ws) {
+    // console.log(ws.upgradeReq.url);
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+
+    ws.send(JSON.stringify({event: 'foo'}));
 });

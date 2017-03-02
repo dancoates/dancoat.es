@@ -2,6 +2,7 @@ import graphql from 'client/util/graphql';
 import loginQuery from 'client/queries/login.graphql';
 import logoutQuery from 'client/queries/logout.graphql';
 import {saveUser, removeSavedUser} from 'client/util/auth';
+import {closeSocket} from 'client/util/ws';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -43,6 +44,7 @@ export function login({email, password}) {
 export function logout() {  
     return function(dispatch) {
         dispatch({type: LOGOUT_REQUEST});
+        closeSocket();
         graphql(logoutQuery)
             .then((data) => {
                 removeSavedUser();

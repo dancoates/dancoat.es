@@ -48,7 +48,8 @@
     "uuid": "^3.0.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0",
-    "whatwg-fetch": "^2.0.2"
+    "whatwg-fetch": "^2.0.2",
+    "ws": "^2.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.3",

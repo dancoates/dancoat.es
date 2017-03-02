@@ -1,4 +1,4 @@
-import {graphqlApi} from 'client/config/paths';
+import {graphqlEndpoint} from 'client/config/paths';
 
 export default function(query, variables) {
     const rawSavedUser = typeof window === 'object' ? window.localStorage.getItem('user') : null;
@@ -9,7 +9,7 @@ export default function(query, variables) {
         'Content-Type': 'application/json'
     };
 
-    return fetch(graphqlApi, {
+    return fetch(graphqlEndpoint, {
         method: 'POST',
         headers: Object.assign({}, headers, savedUser ? {
             'Authorization': savedUser.token
