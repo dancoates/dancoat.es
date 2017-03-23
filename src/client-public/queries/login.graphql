@@ -1,0 +1,14 @@
+mutation Login($email: String!, $password: String!) {
+    user {
+        login(email: $email, password: $password) {
+            email
+            id
+            role
+            token
+            name
+            email
+            created
+            modified
+        }
+    }
+}

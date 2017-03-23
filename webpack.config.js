@@ -3,9 +3,9 @@ const webpack = require('webpack');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
+const ManifestPlugin = require('webpack-manifest-plugin');
 const extractSASS = new ExtractTextPlugin({
-    filename: 'style.css'
+    filename: 'style-[contenthash].css'
 });
 
 const STYLE_LOADERS = [
@@ -26,24 +26,26 @@ const STYLE_LOADERS = [
 ];
 
 
-const env = [
-
-].reduce(function(rr, ii) {
-    rr[ii] = process.env[ii];
-    return rr;
-}, {});
-
-
 module.exports = {
-    entry: './src/client/index.js',
-    output: {
-        path: path.resolve(__dirname, 'public'),
-        filename: 'bundle.js',
-        publicPath: '/'
+    entry: {
+        public: './src/client-public/index.js',
+        admin: './src/client-admin/index.js'
     },
+    output: process.env.NODE_ENV === 'production'
+        ? {
+            path: path.resolve(__dirname, 'public'),
+            filename: '[name]-[hash].js',
+            publicPath: '/'
+        }
+        : {
+            path: path.resolve(__dirname, 'public'),
+            filename: '[name].js',
+            publicPath: '/'
+        },
     devtool: 'source-map',
     plugins: [
         extractSASS,
+        new ManifestPlugin(),
         new webpack.EnvironmentPlugin({
             NODE_ENV: 'development',
             SERVER_PROTOCOL: '',
@@ -70,7 +72,8 @@ module.exports = {
             {
                 test: /\.s?css$/,
                 include: [
-                    path.resolve(__dirname, 'src/client')
+                    path.resolve(__dirname, 'src/client-public'),
+                    path.resolve(__dirname, 'src/client-admin')
                 ],
                 use: process.env.NODE_ENV === 'production'
                     ? extractSASS.extract({
@@ -82,7 +85,8 @@ module.exports = {
                 test: /\.graphql$/,
                 loader: 'raw-loader',
                 include: [
-                    path.resolve(__dirname, 'src/client')
+                    path.resolve(__dirname, 'src/client-public'),
+                    path.resolve(__dirname, 'src/client-admin')
                 ]
             }
         ]

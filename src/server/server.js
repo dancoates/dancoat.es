@@ -1,18 +1,29 @@
 import Hapi from 'hapi';
 import {graphql} from 'graphql';
-import {Resolver, Schema} from 'api';
-import verify from 'api/auth/verify';
+import {Resolver, Schema} from 'server/graphql';
+import verify from 'server/auth/verify';
 import Boom from 'boom';
 import ReactDOMServer from 'react-dom/server'
 import {Provider} from 'react-redux';
-import store from 'client/store';
+import path from 'path';
+
+
 import React from 'react';
-import { RouterContext, match } from 'react-router';
-import Index from 'client/index.static';
-import routes from 'client/routes';
+import {StaticRouter} from 'react-router-dom';
+
+import ClientPublicStore from 'client-public/store';
+import ClientPublicIndex from 'client-public/index.static';
+import ClientPublicApp from 'client-public/components/App';
+
+import ClientAdminStore from 'client-admin/store';
+import ClientAdminIndex from 'client-admin/index.static';
+import ClientAdminApp from 'client-admin/components/App';
+
+
 import upload from 'server/upload';
 import WebSocket from 'ws';
 import url from 'url';
+
 
 ///
 //  HTTP Server
@@ -30,30 +41,52 @@ server.route({
     path: '/{p*}',
     handler: function(request, reply) {
         const path = request.path;
+        const context = {};
 
-        // Don't server side render admin paths
-        const isAdminPath = path.match(/^\/login\/?$/) ||
-                            path.match(/^\/logout\/?$/) ||
-                            path.match(/^\/admin(\/|$)/);
+        const content = ReactDOMServer.renderToString(
+            <Provider store={ClientPublicStore}>
+                <StaticRouter
+                    location={path}
+                    context={context}
+                >
+                    <ClientPublicApp/>
+                </StaticRouter>
+            </Provider>
+        );
 
-        match({routes, location: path}, (err, redirect, renderProps) => {
-            if(err) {
-                return reply(Boom.wrap(err));
-            } else if(redirect) {
-                return reply.redirect(redirect.pathname + redirect.search);
-            } else if(renderProps) {
-                const content = !isAdminPath ? ReactDOMServer.renderToString(
-                    <Provider store={store}><RouterContext {...renderProps}/></Provider>
-                ) : '';
+        const wrapper = <ClientPublicIndex content={content}/>
+        return reply(ReactDOMServer.renderToString(wrapper));
 
-                const wrapper = <Index content={content}/>
-                return reply(ReactDOMServer.renderToString(wrapper));
-            } else {
-                return reply(Boom.notFound('Requested thingo not found', {path}));
-            }
-        });        
     }
-})
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/admin/{p*}',
+    handler: function(request, reply) {
+        const path = request.path;
+        const context = {};
+
+        const content = ReactDOMServer.renderToString(
+            <Provider store={ClientAdminStore}>
+                <StaticRouter
+                    location={path}
+                    context={context}
+                >
+                    <ClientAdminApp/>
+                </StaticRouter>
+            </Provider>
+        );
+
+        const wrapper = <ClientAdminIndex content={content}/>
+        return reply(ReactDOMServer.renderToString(wrapper));
+
+    }
+});
+
+
+
 
 server.route({
     method: 'POST',
