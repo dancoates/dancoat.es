@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as authActions from 'client-admin/actions/auth';
-import {Link} from 'react-router';
+import {Redirect} from 'react-router-dom';
 
 class LoginForm extends React.Component {
     constructor(props) {
@@ -16,17 +16,9 @@ class LoginForm extends React.Component {
         this.props.dispatch(authActions.login({email, password}));
     }
 
-    componentWillReceiveProps(nextProps) {
-        if(nextProps.auth.loggedIn) {
-            this.props.router.replace({
-                pathname: '/admin'
-            });
-        }
-    }
-
     render() {
         if(this.props.auth.loggedIn) {            
-            return <div>You're already logged in, <Link to='/logout'>Logout?</Link></div>;
+            return <Redirect to={'/admin'}/>;
         }
 
         return <form onSubmit={this.handleSubmit}>

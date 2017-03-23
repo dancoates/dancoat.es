@@ -15,10 +15,7 @@ import ClientPublicStore from 'client-public/store';
 import ClientPublicIndex from 'client-public/index.static';
 import ClientPublicApp from 'client-public/components/App';
 
-import ClientAdminStore from 'client-admin/store';
 import ClientAdminIndex from 'client-admin/index.static';
-import ClientAdminApp from 'client-admin/components/App';
-
 
 import upload from 'server/upload';
 import WebSocket from 'ws';
@@ -65,23 +62,8 @@ server.route({
     method: 'GET',
     path: '/admin/{p*}',
     handler: function(request, reply) {
-        const path = request.path;
-        const context = {};
-
-        const content = ReactDOMServer.renderToString(
-            <Provider store={ClientAdminStore}>
-                <StaticRouter
-                    location={path}
-                    context={context}
-                >
-                    <ClientAdminApp/>
-                </StaticRouter>
-            </Provider>
-        );
-
-        const wrapper = <ClientAdminIndex content={content}/>
+        const wrapper = <ClientAdminIndex content=''/>
         return reply(ReactDOMServer.renderToString(wrapper));
-
     }
 });
 

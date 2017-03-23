@@ -13,7 +13,6 @@ class LogoutPage extends React.Component {
     }
     render() {
         const {logoutRequest, logoutError, loggedOut} = this.props.auth;
-        console.log(logoutRequest, logoutError, loggedOut);
 
         return <div>
             {
