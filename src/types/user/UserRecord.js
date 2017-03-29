@@ -1,4 +1,4 @@
-import BaseRecord from 'shared/baseRecord';
+import BaseRecord from 'types/baseRecord';
 
 export default class UserRecord extends BaseRecord({
     id: null,

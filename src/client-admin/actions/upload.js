@@ -1,4 +1,3 @@
-import {listen, unlisten} from 'client-admin/util/ws';
 import {uploadEndpoint} from 'config/paths';
 
 // Actions
@@ -23,9 +22,9 @@ export function uploadFile(file) {
             }
         });
 
-        listen(UPLOAD_REQUEST_RECEIVED, (msg) => msg.tmpId === tmpId, (msg) => {
-            console.log(msg);
-        });
+        // listen(UPLOAD_REQUEST_RECEIVED, (msg) => msg.tmpId === tmpId, (msg) => {
+        //     console.log(msg);
+        // });
 
 
         const xhr = new XMLHttpRequest();

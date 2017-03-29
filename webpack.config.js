@@ -72,8 +72,7 @@ module.exports = {
             {
                 test: /\.s?css$/,
                 include: [
-                    path.resolve(__dirname, 'src/client-public'),
-                    path.resolve(__dirname, 'src/client-admin')
+                    path.resolve(__dirname, 'src')
                 ],
                 use: process.env.NODE_ENV === 'production'
                     ? extractSASS.extract({
@@ -85,8 +84,7 @@ module.exports = {
                 test: /\.graphql$/,
                 loader: 'raw-loader',
                 include: [
-                    path.resolve(__dirname, 'src/client-public'),
-                    path.resolve(__dirname, 'src/client-admin')
+                    path.resolve(__dirname, 'src')
                 ]
             }
         ]

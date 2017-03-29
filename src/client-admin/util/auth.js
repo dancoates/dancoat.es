@@ -1,4 +1,4 @@
-import store from 'client-admin/store';
+import store from 'admin/store';
 import UserRecord from 'types/user/UserRecord';
 
 export function getSavedUser() {

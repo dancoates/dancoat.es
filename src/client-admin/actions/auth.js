@@ -1,6 +1,6 @@
-import graphql from 'client-admin/util/graphql';
-import loginQuery from 'client-admin/queries/login.graphql';
-import logoutQuery from 'client-admin/queries/logout.graphql';
+import graphqlRequest from 'util/graphqlRequest';
+import loginQuery from 'types/auth/LoginQuery.graphql';
+import logoutQuery from 'types/auth/LogoutQuery.graphql';
 import {saveUser, removeSavedUser} from 'client-admin/util/auth';
 import {closeSocket} from 'client-admin/util/ws';
 
@@ -22,7 +22,7 @@ export function login({email, password}) {
             }
         });
 
-        graphql(loginQuery, {email, password})
+        graphqlRequest(loginQuery, {email, password})
             .then((data) => {
                 saveUser(data.user.login);
                 dispatch({
@@ -45,7 +45,7 @@ export function logout() {
     return function(dispatch) {
         dispatch({type: LOGOUT_REQUEST});
         closeSocket();
-        graphql(logoutQuery)
+        graphqlRequest(logoutQuery)
             .then((data) => {
                 removeSavedUser();
                 dispatch({type: LOGOUT_SUCCESS});

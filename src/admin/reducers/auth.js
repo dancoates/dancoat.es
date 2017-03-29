@@ -1,5 +1,5 @@
 import * as authActions from 'client-admin/actions/auth';
-import AuthRecord from 'client-admin/records/AuthRecord';
+import AuthRecord from 'types/auth/AuthRecord';
 import {getSavedUser} from 'client-admin/util/auth';
 
 const savedUser = getSavedUser();

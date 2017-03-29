@@ -6,6 +6,7 @@ import Boom from 'boom';
 import ReactDOMServer from 'react-dom/server'
 import {Provider} from 'react-redux';
 import path from 'path';
+import store from 'admin/store';
 
 
 import React from 'react';
@@ -131,12 +132,24 @@ const wss = new WebSocket.Server({
     }
 });
 
+const stores = {};
 
 wss.on('connection', function connection(ws) {
-    // console.log(ws.upgradeReq.url);
+    const reqUrl = url.parse(ws.upgradeReq.url, true);
+    const token = reqUrl.query.token;
+
+    verify(token)
+        .then(session => {
+            stores[session.userId] = stores[session.userId] || store();
+            const payload = {
+                type: 'INITIAL_STATE',
+                payload: stores[session.userId].getState()
+            };
+
+            ws.send(JSON.stringify(payload));
+        });
+
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
     });
-
-    ws.send(JSON.stringify({event: 'foo'}));
 });

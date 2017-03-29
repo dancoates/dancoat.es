@@ -1,4 +1,4 @@
-import BaseRecord from 'shared/baseRecord';
+import BaseRecord from 'types/baseRecord';
 
 export default class AuthRecord extends BaseRecord({
     token: null,

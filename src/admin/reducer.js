@@ -1,6 +1,6 @@
-import auth from 'client-admin/reducers/auth';
-import user from 'client-admin/reducers/user';
-import upload from 'client-admin/reducers/upload';
+import auth from 'admin/reducers/auth';
+import user from 'admin/reducers/user';
+import upload from 'admin/reducers/upload';
 
 export default function(state= {}, action) {
     
