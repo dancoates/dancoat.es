@@ -8,6 +8,7 @@ let ws = null;
 export function connectSocket() {
 
     return new Promise((resolve, reject) => {
+        if(!savedUser) resolve({});
         const token = savedUser.token;
 
         ws = new WebSocket(`${process.env.WS_PROTOCOL}://${process.env.WS_HOST}:${process.env.WS_PORT}?token=${token}`);

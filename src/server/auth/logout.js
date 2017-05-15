@@ -1,6 +1,6 @@
+import pg from 'services/postgres';
 import jwt from 'jsonwebtoken';
 import {query} from 'services/postgres';
-import SQL from 'sql-template-strings';
 import moment from 'moment';
 
 
@@ -11,9 +11,12 @@ export default function(request) {
     const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const time = moment.utc().format('YYYY-MM-DD HH:mm:ss');
 
-    return query(SQL`
+    return pg.query(`
         update session
-        set valid = false, modified = ${time}
-        where id = ${payload.sessionId}
-    `).then(() => 'success');
+        set valid = false, modified = $[time]
+        where id = $[sessionId]
+    `, {
+        sessionId: payload.sessionId,
+        time
+    }).then(() => console.log('logged out') || 'success');
 }

@@ -24,6 +24,7 @@ export function login({email, password}) {
 
         graphqlRequest(loginQuery, {email, password})
             .then((data) => {
+                if(!data.user.login) throw new Error('Failed to log in'); 
                 saveUser(data.user.login);
                 dispatch({
                     type: LOGIN_SUCCESS,

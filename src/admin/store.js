@@ -15,4 +15,4 @@ const composeEnhancers = (
 
 
 // create store creator
-export default (initialState = {}) => createStore(reducer, initialState, composeEnhancers(middleware));
+export default (initialState = {}) => console.log(initialState) || createStore(reducer, initialState, composeEnhancers(middleware));

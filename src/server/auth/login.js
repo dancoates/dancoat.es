@@ -1,17 +1,9 @@
-import {query} from 'services/postgres';
-import SQL from 'sql-template-strings';
+import pg from 'services/postgres';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 
 
-const getUserFromResult = (result) => {
-    if(result && result.rows && result.rows.length === 1) {
-        return result.rows[0];
-    } else {
-        throw new Error('Incorrect email or password');
-    }
-};
 
 const checkUserPassword = (user, password) => {
     return new Promise((resolve, reject) => {
@@ -32,22 +24,26 @@ const createNewSession = (user, request) => {
     const ip = request.info.remoteAddress;
     const time = moment.utc().format('YYYY-MM-DD HH:mm:ss');
 
-    return query(SQL`
+
+    return pg.one(`
         insert into session
         (valid, account, ip, user_agent, created, modified, host)
-        values (true, ${user.id}, ${ip}, ${userAgent}, ${time}, ${time}, ${host})
+        values (true, $[userId], $[ip], $[userAgent], $[time], $[time], $[host])
         returning id
-    `).then((sessionResult) => {
-        if(sessionResult.rows && sessionResult.rows.length === 1 && sessionResult.rows[0].id) {
-            return {
-                user,
-                session: sessionResult.rows[0].id
-            };
-        }
-    });
+    `, {
+        userId: user.id,
+        ip,
+        userAgent,
+        time,
+        host
+    }).then((session) => ({
+        user,
+        session: session.id
+    }));
 };
 
 const getToken = (user, session) => {
+    console.log(user, session);
     const token = jwt.sign(
         {
             sessionId: session,
@@ -63,7 +59,7 @@ const getToken = (user, session) => {
 export default function(email, password, request) {
     if(!email || !password) throw new Error('email or password not provided');
 
-    return query(SQL`
+    return pg.one(`
         select
             id,
             name,
@@ -73,11 +69,11 @@ export default function(email, password, request) {
             created,
             modified
         from account
-        where email = ${email}
-    `)
-    .then(getUserFromResult)
+        where email = $[email]
+    `, {email})
+    .then((user) => user, (err) => {throw new Error('Incorrect email or password')})
     .then((user) => checkUserPassword(user, password))
     .then((user) => createNewSession(user, request))
-    .then(({user, session}) => getToken(user, session));
+    .then(({user, session}) => console.log(user, session) || getToken(user, session));
 }
 

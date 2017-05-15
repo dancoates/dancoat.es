@@ -85,10 +85,11 @@ server.route({
 
         const context = {request};
 
-        const response = new Promise((resolve, reject) => {
-            graphql(Schema, query, Resolver, context, variables).then((result) => {
-                resolve(result);
-            });
+        const response = graphql(Schema, query, Resolver, context, variables).then(result => {
+            if(result.errors) {
+                result.errors.forEach(error => console.error(error.stack));
+            }
+            return result;
         });
 
         return reply(response);
@@ -141,6 +142,12 @@ wss.on('connection', function connection(ws) {
     verify(token)
         .then(session => {
             stores[session.userId] = stores[session.userId] || store();
+
+            stores[session.userId].dispatch({
+                type: 'LOGIN_SUCCESS',
+                payload: {token}
+            });
+
             const payload = {
                 type: 'INITIAL_STATE',
                 payload: stores[session.userId].getState()

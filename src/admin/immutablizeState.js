@@ -40,7 +40,7 @@ const schema = fromJS({
 });
 
 
-export default function deserializeState(state) {
+export default function immutablizeState(state) {
     return schema.map((item, key) => {
         if(item.get('type') === ENTITY) {
             const ItemRecord = item.get('record');

@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {query} from 'services/postgres';
-import SQL from 'sql-template-strings';
-
+import pg from 'services/postgres';
 
 
 const verifyJWT = (token) => new Promise((resolve, reject) => {
@@ -12,9 +11,12 @@ const verifyJWT = (token) => new Promise((resolve, reject) => {
 });
 
 const checkSession = (payload) => new Promise((resolve, reject) => {
-    return query(SQL`select valid from session where id = ${payload.sessionId}`)
-        .then(result => {
-            if(result.rows.length === 1 && result.rows[0].valid === true) {
+    return pg.query(
+        `select valid from session where id = $[sessionId]`,
+        {sessionId: payload.sessionId}
+    )
+        .then(rows => {
+            if(rows.length === 1 && rows[0].valid === true) {
                 resolve(payload);
             } else {
                 reject(new Error('Session invalid')); // @TODO better http error using boom?

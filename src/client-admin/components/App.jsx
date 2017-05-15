@@ -5,9 +5,9 @@ import Home from 'client-admin/components/Home';
 import LoginPage from 'client-admin/components/LoginPage';
 import LogoutPage from 'client-admin/components/LogoutPage';
 
-
 class App extends React.Component {
     render() {
+        console.log(this.props);
         return <BrowserRouter>
             <div>
                 <Route path='/admin' exact render={() => <Redirect to={'/admin/dashboard'}/>}/>

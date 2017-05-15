@@ -6,10 +6,11 @@ import store from 'admin/store';
 import App from 'client-admin/components/App';
 import 'client-admin/sass/style';
 import {connectSocket} from 'client-admin/util/ws';
+import immutablizeState from 'admin/immutablizeState';
 
 connectSocket()
     .then(initialState => {
-        ReactDom.render(<Provider store={store(initialState)}>
+        ReactDom.render(<Provider store={store(immutablizeState(initialState))}>
             <App/>
         </Provider>, document.getElementById('app'));
     });
