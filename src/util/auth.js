@@ -1,16 +1,13 @@
-import store from 'admin/store';
 import UserRecord from 'types/user/UserRecord';
 
 export function getSavedUser() {
-    const userInState = store && store.getState().user;
-    if(userInState) {
-        return userInState;
-    } else if(typeof window !== 'undefined' && window.localStorage) {
+    if(typeof window !== 'undefined' && window.localStorage) {
         const rawUser = window.localStorage.getItem('user');
         if(!rawUser) return null;
         return new UserRecord(JSON.parse(rawUser));
     }
 
+    return null;
 }
 
 export function saveUser(user) {

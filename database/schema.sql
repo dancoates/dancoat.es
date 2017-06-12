@@ -36,6 +36,7 @@ create table session(
     user_agent text,
     created timestamp with time zone not null,
     modified timestamp with time zone not null,
+    lastactive timestamp with time zone not null,
     expires timestamp with time zone
 );
 

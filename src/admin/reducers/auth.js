@@ -1,12 +1,19 @@
 import * as authActions from 'client-admin/actions/auth';
 import AuthRecord from 'types/auth/AuthRecord';
-import {getSavedUser} from 'client-admin/util/auth';
+import {getSavedUser} from 'util/auth';
+
+import {
+    LOGGED_OUT,
+    LOGGED_IN,
+    LOGGING_IN
+} from 'client-admin/constants/authStates';
+
 
 const savedUser = getSavedUser();
+
 const initialState = new AuthRecord({
     token: savedUser ? savedUser.token : null,
-    loggedIn: savedUser ? !!savedUser.token : false,
-    loggedOut: savedUser ? !savedUser.token : true
+    status: savedUser && !!savedUser.token ? LOGGED_IN : LOGGED_OUT
 });
 
 export default function(state = initialState, action) {
@@ -14,39 +21,35 @@ export default function(state = initialState, action) {
     switch(action.type) {
         case authActions.LOGIN_REQUEST:
             return state.merge({
-                loginRequest: true
+                status: LOGGING_IN
             });
 
         case authActions.LOGIN_SUCCESS:
             return state.merge({
-                loggedIn: true,
-                loggedOut: false,
-                loginRequest: false,
+                status: LOGGED_IN,
                 token: action.payload.token
             });
 
         case authActions.LOGIN_FAILURE:
             return state.merge({
-                loginRequest: false,
-                loginError: action.payload
+                status: LOGGED_OUT,
+                error: action.payload
             });
 
         case authActions.LOGOUT_REQUEST:
             return state.merge({
-                logoutRequest: true
+                status: LOGGING_IN
             });
 
         case authActions.LOGOUT_SUCCESS:
             return state.merge({
-                loggedIn: false,
-                loggedOut: true,
-                logoutRequest: false
+                status: LOGGED_OUT,
+                error: false
             });
 
         case authActions.LOGOUT_FAILURE:
             return state.merge({
-                logoutRequest: false,
-                logoutError: action.payload
+                error: action.payload
             });
     }
 

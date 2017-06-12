@@ -1,8 +1,9 @@
 import {graphqlEndpoint} from 'config/paths';
+import {getSavedUser} from 'util/auth';
 
+// @TODO don't dupe saved user stuff ehre.
 export default function(query, variables) {
-    const rawSavedUser = typeof window === 'object' ? window.localStorage.getItem('user') : null;
-    const savedUser = rawSavedUser ? JSON.parse(rawSavedUser) : null;
+    const savedUser = getSavedUser();
 
     const headers = {
         Accept: 'application/json',

@@ -1,8 +1,14 @@
-import graphqlRequest from 'util/graphqlRequest';
-import loginQuery from 'types/auth/LoginQuery.graphql';
-import logoutQuery from 'types/auth/LogoutQuery.graphql';
-import {saveUser, removeSavedUser} from 'client-admin/util/auth';
-import {closeSocket} from 'client-admin/util/ws';
+import {loginEndpoint, logoutEndpoint} from 'config/paths';
+import {getSavedUser, saveUser, removeSavedUser} from 'util/auth';
+import {closeSocket, connectSocket} from 'client-admin/util/ws';
+import hydrate from 'client-admin/util/hydrate';
+import immutablizeState from 'admin/immutablizeState';
+
+import {
+    LOGGED_OUT,
+    LOGGED_IN,
+    LOGGING_IN
+} from 'client-admin/constants/authStates';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -22,14 +28,44 @@ export function login({email, password}) {
             }
         });
 
-        graphqlRequest(loginQuery, {email, password})
-            .then((data) => {
-                if(!data.user.login) throw new Error('Failed to log in'); 
-                saveUser(data.user.login);
+        fetch(loginEndpoint, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email, password
+            })
+        })
+            .then(result => {
+                if(result.status !== 200) throw new Error(result.statusText);
+                return result.json();
+            })
+            .then(user => {
+                saveUser(user);
+
                 dispatch({
                     type: LOGIN_SUCCESS,
-                    payload: data.user.login
+                    payload: user
                 });
+
+                connectSocket();
+
+                hydrate()
+                    .then((state) => {
+                        dispatch({
+                            type: 'HYDRATE',
+                            payload: immutablizeState(state)
+                        });
+                    })
+                    .catch((err) => {
+                        // This shouldn't happen?
+                        console.error(err);
+                        window.location.reload();
+                    })
+
             })
             .catch((err) => {
                 dispatch({
@@ -44,13 +80,30 @@ export function login({email, password}) {
 
 export function logout() {  
     return function(dispatch) {
+        const savedUser = getSavedUser();
+        if(!savedUser) return;
         dispatch({type: LOGOUT_REQUEST});
         closeSocket();
-        graphqlRequest(logoutQuery)
-            .then((data) => {
-                removeSavedUser();
+        removeSavedUser();
+
+        fetch(logoutEndpoint, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: savedUser.token
+            }
+        })
+            .then(result => {
+                if(result.status !== 200) throw new Error(result.statusText);
+                return result.json();
+            })
+            .then(() => {
                 dispatch({type: LOGOUT_SUCCESS});
             })
-            .catch((err) => dispatch({type: LOGOUT_FAILURE, payload: err}));
+            .catch((err) => {
+                dispatch({type: LOGOUT_FAILURE, payload: err})
+            });
     };
 }

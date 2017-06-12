@@ -1,3 +1,2 @@
 - Filename hashing
 - Code splitting
-- Switch to pg-promise

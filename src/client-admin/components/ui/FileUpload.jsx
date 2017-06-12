@@ -17,7 +17,6 @@ class FileUpload extends React.Component {
     }
 
     render() {
-        console.log(this.props.uploads);
         return <div>
             <input type="file" multiple={true} onChange={this.handleFileSelect}/>
         </div>;

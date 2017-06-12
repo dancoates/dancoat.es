@@ -4,8 +4,6 @@ import {uploadEndpoint} from 'config/paths';
 export const UPLOAD_BEGIN = 'UPLOAD_BEGIN';
 
 
-// Message Events
-const UPLOAD_REQUEST_RECEIVED = 'UPLOAD_REQUEST_RECEIVED';
 
 
 export function uploadFile(file) {

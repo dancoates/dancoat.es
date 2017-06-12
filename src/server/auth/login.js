@@ -2,7 +2,7 @@ import pg from 'services/postgres';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
-
+import Boom from 'boom';
 
 
 const checkUserPassword = (user, password) => {
@@ -10,9 +10,10 @@ const checkUserPassword = (user, password) => {
         bcrypt.compare(password, user.password, function(err, res) {
             if(err) return reject(err);
             if(res) {
+                delete user.password;
                 return resolve(user);
             } else {
-                return reject(new Error('Incorrect email or password'));
+                return reject(Boom.unauthorized('Incorrect email or password'));
             }
         });
     });
@@ -43,7 +44,6 @@ const createNewSession = (user, request) => {
 };
 
 const getToken = (user, session) => {
-    console.log(user, session);
     const token = jwt.sign(
         {
             sessionId: session,
@@ -57,7 +57,7 @@ const getToken = (user, session) => {
 
 
 export default function(email, password, request) {
-    if(!email || !password) throw new Error('email or password not provided');
+    if(!email || !password) return Promise.reject(Boom.unauthorized('email or password not provided'));
 
     return pg.one(`
         select
@@ -71,9 +71,9 @@ export default function(email, password, request) {
         from account
         where email = $[email]
     `, {email})
-    .then((user) => user, (err) => {throw new Error('Incorrect email or password')})
+    .then((user) => user, (err) => Promise.reject(Boom.unauthorized('Incorrect email or password')))
     .then((user) => checkUserPassword(user, password))
     .then((user) => createNewSession(user, request))
-    .then(({user, session}) => console.log(user, session) || getToken(user, session));
+    .then(({user, session}) => getToken(user, session));
 }
 

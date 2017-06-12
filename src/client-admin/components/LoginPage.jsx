@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as authActions from 'client-admin/actions/auth';
 import {Redirect} from 'react-router-dom';
+import {LOGGED_IN} from 'client-admin/constants/authStates';
 
 class LoginForm extends React.Component {
     constructor(props) {
@@ -17,7 +18,7 @@ class LoginForm extends React.Component {
     }
 
     render() {
-        if(this.props.auth.loggedIn) {            
+        if(this.props.auth.status === LOGGED_IN) {
             return <Redirect to={'/admin'}/>;
         }
 

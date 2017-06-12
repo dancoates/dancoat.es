@@ -1,13 +1,14 @@
 import React from 'react';
 import {Route, Redirect, BrowserRouter} from 'react-router-dom';
 import {connect} from 'react-redux';
-import Home from 'client-admin/components/Home';
+import Dashboard from 'client-admin/components/Dashboard';
 import LoginPage from 'client-admin/components/LoginPage';
 import LogoutPage from 'client-admin/components/LogoutPage';
+import {LOGGED_IN} from 'client-admin/constants/authStates';
+
 
 class App extends React.Component {
     render() {
-        console.log(this.props);
         return <BrowserRouter>
             <div>
                 <Route path='/admin' exact render={() => <Redirect to={'/admin/dashboard'}/>}/>
@@ -15,7 +16,7 @@ class App extends React.Component {
                 <Route path='/admin/logout' component={LogoutPage}/>
 
                 {this.props.loggedIn
-                    ? <Route path='/admin/dashboard' component={Home}/>
+                    ? <Route path='/admin/dashboard' component={Dashboard}/>
                     : <Redirect to={'/admin/login'}/>
                 }
             </div>
@@ -24,5 +25,5 @@ class App extends React.Component {
 }
 
 export default connect(state => {
-    return {loggedIn: state.auth.loggedIn};
+    return {loggedIn: state.auth.status === LOGGED_IN};
 })(App);

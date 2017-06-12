@@ -11,8 +11,4 @@ export default `
         postList: [Post],
         user: UserQuery
     }
-
-    type Mutation {
-        user: UserMutation
-    }
 `;

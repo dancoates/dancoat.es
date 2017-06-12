@@ -1,95 +1,79 @@
 
-import {getSavedUser} from 'client-admin/util/auth';
+import {getSavedUser} from 'util/auth';
+import {
+    READY,
+    CONNECTING,
+    NOT_SETUP
+} from 'client-admin/constants/wsStates';
+//@TODO export singleton that knows has onMessage and send attributes and queue any messages until ready
 
-const savedUser = getSavedUser();
-
+let status = NOT_SETUP;
+let queue = [];
 let ws = null;
+let callbacks = [];
 
-export function connectSocket() {
+function setup() {
+    if(status !== NOT_SETUP) return;
 
-    return new Promise((resolve, reject) => {
-        if(!savedUser) resolve({});
-        const token = savedUser.token;
+    const savedUser = getSavedUser();
+    if(!savedUser) return;
 
-        ws = new WebSocket(`${process.env.WS_PROTOCOL}://${process.env.WS_HOST}:${process.env.WS_PORT}?token=${token}`);
+    status = CONNECTING;
 
-        ws.onopen = function() {
-            console.log('socket open');
-        };
+    const token = savedUser.token;
 
-        ws.onerror = function(err) {
-            console.error(err);
-            reject(err);
+    ws = new WebSocket(`${process.env.WS_PROTOCOL}://${process.env.WS_HOST}:${process.env.WS_PORT}?token=${token}`);
+
+    ws.onopen = function() {
+        status = READY;
+        if(queue.length > 0) {
+            queue.forEach(message => ws.send(JSON.stringify(message)));
         }
+    };
+
+    ws.onmessage = function(message) {
+        const data = JSON.parse(message);
+        if(data.type !== 'action') return;
+
+        callbacks.forEach(callback => {
+            callback(data);
+        });
+    };
 
 
-        ws.onclose = function() {
-            console.log('socket closed');
-        }
-
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-
-            if(message.type === 'INITIAL_STATE') {
-                resolve(message.payload);
-            }
-        };
-
-
-    });
-
-    
+    ws.onclose = function() {
+        console.log('socket closed');
+    };
 
 }
 
-// let listeners = [];
-// let ws = null;
 
-// function initSocket(token) {
+//@TODO add unlisten?
+export function onMessage(callback) {
+    if(status === NOT_SETUP) {
+        setup();
+    }
+    callbacks.push(callback);
+}
 
-//     ws = new WebSocket(`${process.env.WS_PROTOCOL}://${process.env.WS_HOST}:${process.env.WS_PORT}?token=${token}`);
+export function sendMessage(message) {
+    if(status === NOT_SETUP) {
+        setup();
+        queue.push(message);
+    }
 
-//     ws.onopen = function() {
-//         console.log('socket open');
-//     };
+    if(status === READY) {
+        ws.send(JSON.stringify(message));
+    }
 
-//     ws.onclose = function() {
-//         console.log('socket closed');
-//     }
+    if(status === CONNECTING) {
+        queue.push(message);
+    }
+}
 
-//     ws.onmessage = function(event) {
-//         const message = JSON.parse(event.data);
-//         const toNotify = listeners.filter(listener =>
-//             listener.event === message.event &&
-//             (!listner.matcher || listener.matcher(message))
-//         );
-
-//         toNotify.forEach(listener => listener.handler(message));
-//     };
-// }
-
-// if(savedUser && savedUser.token) {
-//     initSocket(savedUser.token);
-// }
-
-
-// export function listen(event, matcher, handler) {
-//     listeners.push({event, matcher, handler});
-
-//     // If not already listening, start
-//     if(!ws) {
-//         const savedUser = getSavedUser();
-//         if(savedUser && savedUser.token) {
-//             initSocket(savedUser.token);
-//         }
-//     }
-// }
-
-// export function unlisten(event, handler) {
-//     listeners = listeners.filter(
-//         listener => listener.event !== event || listener.handler !== handler
-//     );
-// };
+export function connectSocket() {
+    if(status === NOT_SETUP) setup();
+}
 
 export function closeSocket() {
     ws.close();

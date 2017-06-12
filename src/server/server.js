@@ -1,16 +1,22 @@
 import Hapi from 'hapi';
 import {graphql} from 'graphql';
+import Boom from 'boom';
+import React from 'react';
+import {Provider} from 'react-redux';
+import {StaticRouter} from 'react-router-dom';
+import path from 'path';
+import uuid from 'uuid/v4';
+import WebSocket from 'ws';
+import url from 'url';
+
 import {Resolver, Schema} from 'server/graphql';
 import verify from 'server/auth/verify';
-import Boom from 'boom';
+import login from 'server/auth/login';
+import logout from 'server/auth/logout';
+import upload from 'server/upload';
 import ReactDOMServer from 'react-dom/server'
-import {Provider} from 'react-redux';
-import path from 'path';
 import store from 'admin/store';
 
-
-import React from 'react';
-import {StaticRouter} from 'react-router-dom';
 
 import ClientPublicStore from 'client-public/store';
 import ClientPublicIndex from 'client-public/index.static';
@@ -18,9 +24,6 @@ import ClientPublicApp from 'client-public/components/App';
 
 import ClientAdminIndex from 'client-admin/index.static';
 
-import upload from 'server/upload';
-import WebSocket from 'ws';
-import url from 'url';
 
 
 ///
@@ -33,6 +36,8 @@ server.connection({
     host: process.env.HOST || '0.0.0.0',
     port: process.env.SERVER_PORT || 4444
 });
+
+
 
 server.route({
     method: 'GET',
@@ -69,6 +74,40 @@ server.route({
 });
 
 
+server.route({
+    method: 'POST',
+    path: '/login',
+    config: {
+        cors: true
+    },
+    handler: function(request, reply) {
+        const {email, password} = request.payload;
+        login(email, password, request)
+            .then(reply)
+            .catch((err) => {
+                if(err.isBoom) return reply(err);
+                reply(Boom.wrap(err));
+            })
+    }
+});
+
+server.route({
+    method: 'POST',
+    path: '/logout',
+    config: {
+        cors: true
+    },
+    handler: function(request, reply) {
+
+        logout(request)
+            .then(reply)
+            .catch((err) => {
+                if(err.isBoom) return reply(err);
+                reply(Boom.wrap(err));
+            })
+    }
+})
+
 
 
 server.route({
@@ -85,12 +124,13 @@ server.route({
 
         const context = {request};
 
-        const response = graphql(Schema, query, Resolver, context, variables).then(result => {
-            if(result.errors) {
-                result.errors.forEach(error => console.error(error.stack));
-            }
-            return result;
-        });
+        const response = graphql(Schema, query, Resolver, context, variables)
+            .then(result => {
+                if(result.errors) {
+                    result.errors.forEach(error => console.error(error.stack));
+                }
+                return result;
+            });
 
         return reply(response);
     }
@@ -107,6 +147,31 @@ server.route({
     },
     handler: upload
 });
+
+
+
+server.route({
+    method: 'GET',
+    path: '/hydrate',
+    config: {
+        cors: true
+    },
+    handler: async function(request, reply) {
+        const token = request.headers.authorization;
+
+        try {
+            const sessionData = await verify(token);
+            sessions[sessionData.userId] = sessions[sessionData.userId] || createSession(token, sessionData);
+            reply(sessions[sessionData.userId].store.getState());
+            
+        } catch(err) {
+            reply(Boom.unauthorized(err.message));
+        }
+
+
+    }
+});
+
 
 // Start the server
 server.start((err) => {
@@ -133,30 +198,72 @@ const wss = new WebSocket.Server({
     }
 });
 
-const stores = {};
 
-wss.on('connection', function connection(ws) {
+const sessions = {};
+const createSession = (token, sessionData) => {
+    
+    const sendMessage = (action) => {
+        if(action.secondary || action.type === '@@redux/INIT') return;
+        console.log(action);
+        sessions[sessionData.userId].clients.forEach(client => {
+            client.send({
+                type: 'action',
+                payload: {
+                    ...action,
+                    secondary: true // So that clients don't redispatch
+                }
+            });
+        });
+    };
+
+    return {
+        clients: [],
+        store: store({
+            auth: {
+                status: 'LOGGED_IN',
+                token: token
+            }
+        }, sendMessage),
+        data: sessionData
+    };
+};
+
+wss.on('connection', async function connection(ws) {
     const reqUrl = url.parse(ws.upgradeReq.url, true);
     const token = reqUrl.query.token;
+    const clientId = uuid();
 
-    verify(token)
-        .then(session => {
-            stores[session.userId] = stores[session.userId] || store();
-
-            stores[session.userId].dispatch({
-                type: 'LOGIN_SUCCESS',
-                payload: {token}
-            });
-
-            const payload = {
-                type: 'INITIAL_STATE',
-                payload: stores[session.userId].getState()
-            };
-
-            ws.send(JSON.stringify(payload));
-        });
+    const sessionData = await verify(token);
+    sessions[sessionData.userId] = sessions[sessionData.userId] || createSession(token, sessionData);
+    // Add client
+    sessions[sessionData.userId].clients.push(ws);
 
     ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
+        const data = JSON.parse(message);
+        if(data.type !== 'action') return;
+
+        // Dispatch action
+        sessions[sessionData.userId].store.dispatch(data.payload);
+
+        // Broadcast action to all other clients
+        sessions[sessionData.userId].clients.forEach(client => {
+            if(client === ws) return;
+
+            client.send({
+                type: 'action',
+                payload: {
+                    ...data.payload,
+                    secondary: true // So that clients don't redispatch
+                }
+            });
+        });
     });
+
+    ws.on('close', function incoming(message) {
+        sessions[sessionData.userId] = {
+            ...sessions[sessionData.userId],
+            clients: sessions[sessionData.userId].clients.filter(client => client !== ws)
+        };
+    });
+
 });
