@@ -1,7 +1,11 @@
+//@flow
 // Individual schemas
-export {default as post} from 'types/post/PostSchema.graphql';
-export {default as postVersion} from 'types/post/PostVersionSchema.graphql';
-export {default as user} from 'types/user/UserSchema.graphql';
+import post from '../../types/post/PostSchema.graphql';
+export {post as post};
+import postVersion from '../../types/post/PostVersionSchema.graphql';
+export {postVersion as postVersion};
+import user from '../../types/user/UserSchema.graphql';
+export {user as user};
 
 
 // Root query schema

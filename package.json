@@ -8,7 +8,9 @@
     "server-watch": "nodemon --delay 2 index",
     "client-build": "NODE_ENV=production webpack -p",
     "client-watch": "webpack-dev-server --hot --inline",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src --ext js,jsx",
+    "flow": "flow check",
+    "test": "yarn run lint && yarn run flow"
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
     "app-module-path": "^2.1.0",
     "aws-sdk": "^2.20.0",
     "babel-core": "^6.22.1",
+    "babel-plugin-inline-import": "^2.0.5",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.1.8",
     "babel-preset-react": "^6.23.0",
@@ -31,6 +34,7 @@
     "bcrypt": "^1.0.2",
     "boom": "^4.2.0",
     "dotenv": "^4.0.0",
+    "flow-bin": "^0.48.0",
     "graphql": "^0.8.2",
     "hapi": "^16.1.0",
     "history": "^4.5.1",
@@ -55,6 +59,8 @@
     "autoprefixer": "^6.7.3",
     "babel-loader": "^6.2.10",
     "css-loader": "^0.26.1",
+    "eslint": "^4.0.0",
+    "eslint-config-blueflag": "^0.4.0",
     "extract-text-webpack-plugin": "beta",
     "file-loader": "^0.9.0",
     "node-sass": "^4.3.0",

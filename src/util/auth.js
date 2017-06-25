@@ -1,10 +1,10 @@
-import UserRecord from 'types/user/UserRecord';
+import UserModel from 'types/user/UserModel';
 
 export function getSavedUser() {
     if(typeof window !== 'undefined' && window.localStorage) {
         const rawUser = window.localStorage.getItem('user');
         if(!rawUser) return null;
-        return new UserRecord(JSON.parse(rawUser));
+        return new UserModel(JSON.parse(rawUser));
     }
 
     return null;

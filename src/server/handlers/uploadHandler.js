@@ -1,17 +1,20 @@
-import AWS from 'aws-sdk';
+// @flow
+// import AWS from 'aws-sdk';
 import uuid from 'uuid/v4';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import Request from 'hapi/lib/request';
+import Reply from 'hapi/lib/request';
 
-const s3 = new AWS.S3();
+// const s3 = new AWS.S3();
 
-new AWS.Config({
-    credientials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-});
+// new AWS.Config({
+//     credientials: {
+//         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+//     }
+// });
 
 /*
 
@@ -32,7 +35,7 @@ Next steps:
 */
 
 
-export default function(request, reply) {
+export default function(request: Request, reply: Reply) {
 
     const fileInfo = {
         name: request.headers['x-filename'],
@@ -51,10 +54,10 @@ export default function(request, reply) {
 
     console.log('uploading to ' + tmpPath);
 
-    stream.on('data', (chunk) => {
+    stream.on('data', (chunk: Buffer) => {
         sizeRead += chunk.byteLength;
 
-        console.log((sizeRead / fileInfo.size) * 100)
+        console.log((sizeRead / fileInfo.size) * 100);
     });
 
     stream.on('end', () => reply({success: 'true'}));

@@ -1,23 +1,24 @@
+//@flow
 import {fromJS} from 'immutable';
 
 
-import UploadRecord from 'types/upload/UploadRecord';
-import UserRecord from 'types/user/UserRecord';
-import AuthRecord from 'types/auth/AuthRecord';
+import UploadModel from 'types/upload/UploadModel';
+import UserModel from 'types/user/UserModel';
+import AuthModel from 'types/auth/AuthModel';
 
 
 
-const entity = (Record) => {
+const entity = (Model) => {
     return {
         type: 'entity',
-        record: Record
+        model: Model
     };
 }
 
-const listOf = (Record) => {
+const listOf = (Model) => {
     return {
         type: 'list',
-        record: Record
+        model: Model
     };
 }
 
@@ -27,15 +28,15 @@ const LIST = 'LIST';
 const schema = fromJS({
     upload: {
         type: ENTITY,
-        record: UploadRecord
+        model: UploadModel
     },
     user: {
         type: ENTITY,
-        record: UserRecord
+        model: UserModel
     },
     auth: {
         type: ENTITY,
-        record: AuthRecord
+        model: AuthModel
     }
 });
 
@@ -43,8 +44,8 @@ const schema = fromJS({
 export default function immutablizeState(state) {
     return schema.map((item, key) => {
         if(item.get('type') === ENTITY) {
-            const ItemRecord = item.get('record');
-            return new ItemRecord(state[key]);
+            const ItemModel = item.get('model');
+            return new ItemModel(state[key]);
         }
     }).toObject();
 } 

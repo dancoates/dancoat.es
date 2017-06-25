@@ -1,5 +1,5 @@
 import * as authActions from 'client-admin/actions/auth';
-import AuthRecord from 'types/auth/AuthRecord';
+import AuthModel from 'types/auth/AuthModel';
 import {getSavedUser} from 'util/auth';
 
 import {
@@ -11,7 +11,7 @@ import {
 
 const savedUser = getSavedUser();
 
-const initialState = new AuthRecord({
+const initialState = new AuthModel({
     token: savedUser ? savedUser.token : null,
     status: savedUser && !!savedUser.token ? LOGGED_IN : LOGGED_OUT
 });

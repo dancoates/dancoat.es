@@ -1,6 +1,6 @@
 import login from 'server/auth/login';
 import logout from 'server/auth/logout';
-import UserRecord from 'types/user/UserRecord';
+import UserModel from 'types/user/UserModel';
 
 
 export default {

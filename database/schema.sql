@@ -1,7 +1,7 @@
 
 
 create table account(  
-    id bigserial primary key,
+    id text primary key,
     name text not null,
     role text not null,
     email text not null,
@@ -11,26 +11,26 @@ create table account(
 );
 
 create table post(
-    id bigserial primary key,
+    id text primary key,
     slug text not null,
     created timestamp with time zone not null,
     modified timestamp with time zone not null
 );
 
 create table post_version(
-    id bigserial primary key,
+    id text primary key,
     latest boolean not null,
-    post bigint references post on update cascade,
-    author bigint references account on update cascade,
+    post text references post on update cascade,
+    author text references account on update cascade,
     body text,
     created timestamp with time zone not null,
     modified timestamp with time zone not null
 );
 
 create table session(
-    id bigserial primary key,
+    id text primary key,
     valid boolean not null,
-    account bigint references account on update cascade,
+    account text references account on update cascade,
     host text,
     ip inet,
     user_agent text,

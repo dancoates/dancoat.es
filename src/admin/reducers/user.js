@@ -1,5 +1,5 @@
 import * as authActions from 'client-admin/actions/auth';
-import UserRecord from 'types/user/UserRecord';
+import UserModel from 'types/user/UserModel';
 import {getSavedUser} from 'util/auth';
 
 const initialState = getSavedUser();

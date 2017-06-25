@@ -1,49 +1,60 @@
+// @flow
+
 import pg from 'services/postgres';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import moment from 'moment';
 import Boom from 'boom';
+import Request from 'hapi/lib/request';
+import uuid from 'uuid/v4';
 
+type UserData = {
+    id: string,
+    name: string,
+    role: string,
+    email: string,
+    password: string,
+    created: string,
+    modified: string,
+    token: string
+};
 
-const checkUserPassword = (user, password) => {
-    return new Promise((resolve, reject) => {
-        bcrypt.compare(password, user.password, function(err, res) {
+const checkUserPassword = (user: UserData, password: string): Promise<bool> => {
+    return new Promise((resolve: Function, reject: Function) => {
+        bcrypt.compare(password, user.password, function(err: Error, res: bool): void {
             if(err) return reject(err);
-            if(res) {
-                delete user.password;
-                return resolve(user);
-            } else {
-                return reject(Boom.unauthorized('Incorrect email or password'));
-            }
+            return resolve(res);
         });
     });
 };
 
-const createNewSession = (user, request) => {
+const createNewSession = async (
+    user: UserData,
+    request: Request
+): Promise<string> => {
     const userAgent = request.headers['user-agent'];
     const host = request.headers['host'];
     const ip = request.info.remoteAddress;
-    const time = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+    const sessionData = await pg.one(
+        `
+            insert into session
+            (id, valid, account, ip, user_agent, created, modified, lastactive, host)
+            values ($[id], true, $[userId], $[ip], $[userAgent], $[time], $[time], $[time], $[host])
+            returning id
+        `,
+        {
+            id: uuid(),
+            userId: user.id,
+            time: new Date(),
+            userAgent,
+            host,
+            ip
+        }
+    );
 
-
-    return pg.one(`
-        insert into session
-        (valid, account, ip, user_agent, created, modified, host)
-        values (true, $[userId], $[ip], $[userAgent], $[time], $[time], $[host])
-        returning id
-    `, {
-        userId: user.id,
-        ip,
-        userAgent,
-        time,
-        host
-    }).then((session) => ({
-        user,
-        session: session.id
-    }));
+    return sessionData.id;
 };
 
-const getToken = (user, session) => {
+const getToken = (user: UserData, session: string): UserData => {
     const token = jwt.sign(
         {
             sessionId: session,
@@ -56,24 +67,36 @@ const getToken = (user, session) => {
 };
 
 
-export default function(email, password, request) {
-    if(!email || !password) return Promise.reject(Boom.unauthorized('email or password not provided'));
+export default async function(email: string, password: string, request: Request): Promise<UserData> {
+    if(!email || !password) throw Boom.unauthorized('email or password not provided');
 
-    return pg.one(`
-        select
-            id,
-            name,
-            role,
-            email,
-            password,
-            created,
-            modified
-        from account
-        where email = $[email]
-    `, {email})
-    .then((user) => user, (err) => Promise.reject(Boom.unauthorized('Incorrect email or password')))
-    .then((user) => checkUserPassword(user, password))
-    .then((user) => createNewSession(user, request))
-    .then(({user, session}) => getToken(user, session));
+    const err = Boom.unauthorized('Incorrect email or password');
+
+    const userData = await pg.oneOrNone(
+        `
+            select
+                id,
+                name,
+                role,
+                email,
+                password,
+                created,
+                modified
+            from account
+            where email = $[email]
+        `,
+        {email}
+    );
+
+    if(!userData) throw err;
+
+    const validPassword = await checkUserPassword(userData, password);
+    if(!validPassword) throw err;
+
+
+    const sessionId = await createNewSession(userData, request);
+    const userDataWithToken = await getToken(userData, sessionId);
+
+    return userDataWithToken;
 }
 

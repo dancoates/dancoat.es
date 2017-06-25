@@ -1,6 +1,6 @@
-import BaseRecord from 'types/baseRecord';
+import BaseModel from 'types/BaseModel';
 
-export default class UserRecord extends BaseRecord({
+export default class UserRecord extends BaseModel({
     id: null,
     token: null,
     role: null,

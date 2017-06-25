@@ -1,8 +1,9 @@
-//
-// Shim the graphql syntax requires so
-// that they return as strings
-var fs = require('fs');
-require.extensions['.graphql'] = (module, filename) => {
-    module.exports = fs.readFileSync(filename, 'utf8');
-};
-module.exports = require('./graphql');
+//@flow
+import {buildSchema} from 'graphql';
+import {fromJS} from 'immutable';
+import rootQuerySchema, * as schemas from 'server/graphql/schemas';
+import * as resolvers from 'server/graphql/resolvers';
+
+const schemaMap = fromJS(schemas);
+export const Schema = buildSchema(schemaMap.join('\n') + rootQuerySchema);
+export const Resolver = resolvers;
