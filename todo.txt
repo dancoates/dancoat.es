@@ -1,2 +1,13 @@
 - Filename hashing
 - Code splitting
+
+
+- Use enty to manage client side state
+- defer all other state to server side
+- client selects server side state slices based on graphql queries (need a schema?).
+- server dispatches 
+
+or not?
+
+- makes more sense to dispatch actions and have reducers create state sync between server & client
+- just use bits of enty that are needed (schema, normalize and denormalize)
